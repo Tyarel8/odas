@@ -1,6 +1,6 @@
 #include <utils/wavelet.h>
 
-wavelet_obj *wavelet_construct( unsigned int signalLength) {
+wavelet_obj *wavelet_construct(unsigned int signalLength) {
   wavelet_obj *obj;
   wave_object wave_temp_obj; // Temporary for wave_init
 
