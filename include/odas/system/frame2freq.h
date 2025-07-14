@@ -35,7 +35,7 @@
     #include <signal/frame.h>
     #include <signal/freq.h>
     #include <signal/window.h>
-    #include <utils/fft.h>
+    #include <utils/wavelet.h>
 
     typedef struct frame2freq_obj {
 
@@ -45,7 +45,7 @@
         window_obj * win;
         float * frame;
 
-        fft_obj * fft;
+        wavelet_obj * wavelet;
 
     } frame2freq_obj;
 

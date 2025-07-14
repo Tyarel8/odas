@@ -35,7 +35,7 @@
 
     #include <signal/acorr.h>
     #include <signal/freq.h>
-    #include <utils/fft.h>
+    #include <utils/wavelet.h>
 
     typedef struct freq2acorr_obj {
 
@@ -46,7 +46,7 @@
         float * arrayIn;
         float * arrayOut;
 
-        fft_obj * fft;
+        wavelet_obj * wavelet;
 
     } freq2acorr_obj;
 

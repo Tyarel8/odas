@@ -42,7 +42,7 @@
         obj->arrayIn = (float *) malloc(sizeof(float) * obj->halfFrameSize * 2);
         obj->arrayOut = (float *) malloc(sizeof(float) * obj->frameSize);
 
-        obj->fft = fft_construct(obj->frameSize);
+        obj->wavelet = wavelet_construct(obj->frameSize);
 
         return obj;
 
@@ -52,7 +52,7 @@
 
         free((void *) obj->arrayIn);
         free((void *) obj->arrayOut);
-        fft_destroy(obj->fft);
+        wavelet_destroy(obj->wavelet);
         free((void *) obj);
 
     }
@@ -81,7 +81,7 @@
 
             }
 
-            fft_c2r(obj->fft, obj->arrayIn, obj->arrayOut);
+            wavelet_idwt(obj->wavelet, obj->arrayIn, obj->arrayOut);
 
             memcpy(acorrs->array[iSignal], obj->arrayOut, sizeof(float) * obj->halfFrameSize);
 

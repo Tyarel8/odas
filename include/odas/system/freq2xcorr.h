@@ -34,7 +34,7 @@
     #include <signal/pair.h>
     #include <signal/tdoa.h>
     #include <signal/xcorr.h>
-    #include <utils/fft.h>
+    #include <utils/wavelet.h>
 
     typedef struct freq2xcorr_obj {
 
@@ -43,7 +43,7 @@
 
         float * frame;
 
-        fft_obj * fft;
+        wavelet_obj * wavelet;
 
     } freq2xcorr_obj;
 

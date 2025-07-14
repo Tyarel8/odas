@@ -41,7 +41,7 @@
         obj->win = windowing_roothann(frameSize);
         obj->frame = (float *) malloc(sizeof(float) * frameSize);
         memset(obj->frame, 0x00, sizeof(float) * frameSize);
-        obj->fft = fft_construct(frameSize);
+        obj->wavelet = wavelet_construct(frameSize);
 
         return obj;
 
@@ -51,7 +51,7 @@
 
         window_destroy(obj->win);
         free((void *) obj->frame);
-        fft_destroy(obj->fft);
+        wavelet_destroy(obj->wavelet);
 
         free((void *) obj);        
 
@@ -64,7 +64,7 @@
 
         for (iSignal = 0; iSignal < frames->nSignals; iSignal++) {
 
-            fft_c2r(obj->fft, 
+            wavelet_idwt(obj->wavelet, 
                     freqs->array[iSignal],
                     obj->frame);
 

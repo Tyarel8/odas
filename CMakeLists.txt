@@ -9,12 +9,21 @@ option(ODAS_INSTALL_EXECUTABLES "Install the odaslive and odasserver executables
 option(ODAS_FORCE_BIN_AND_LIB_DIRS "Force the installation of the odas library and executables in the bin and lib directories" ON)
 option(ODAS_DISABLE_INSTALL "Disable the installation of the odas library and executables" OFF)
 
-
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_FFTW3 REQUIRED fftw3f)
 pkg_check_modules(PC_ALSA REQUIRED alsa)
 pkg_check_modules(PC_LIBCONFIG REQUIRED libconfig)
 pkg_check_modules(PC_PULSEAUDIO REQUIRED libpulse-simple)
+
+# --- MANUAL WAVELIB ADDITION ---
+set(WAVELIB_ROOT_DIR "/home/respeaker/wavelib")
+
+include_directories("${WAVELIB_ROOT_DIR}/header")
+
+set(WAVELIB_LIBRARIES
+    "${WAVELIB_ROOT_DIR}/build/Bin/libwavelib.a"
+    "${WAVELIB_ROOT_DIR}/build/Bin/libwauxlib.a"
+)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
@@ -117,6 +126,7 @@ set(SRC
 
     src/utils/cmatrix.c
     src/utils/fft.c
+    src/utils/wavelet.c
     src/utils/fifo.c
     src/utils/gaussian.c
     src/utils/gaussjordan.c
@@ -203,6 +213,7 @@ target_link_libraries(odas
     ${PC_ALSA_LIBRARIES}
     ${PC_LIBCONFIG_LIBRARIES}
     ${PC_PULSEAUDIO_LIBRARIES}
+    ${WAVELIB_LIBRARIES} # Link against our manually defined wavelib static libs
     m
     pthread
 )

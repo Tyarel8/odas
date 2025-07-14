@@ -777,7 +777,7 @@
         obj->winSizeGlobal = winSizeGlobal;
         obj->winSizeFrame = winSizeFrame;
 
-        obj->fft = fft_construct(obj->frameSize);
+        obj->wavelet = wavelet_construct(obj->frameSize);
 
         obj->winLocal = (float *) malloc(sizeof(float) * winSizeLocal);
         memset(obj->winLocal, 0x00, sizeof(float) * winSizeLocal);
@@ -888,9 +888,9 @@
         obj->winFrameShiftedFreq = (float *) malloc(sizeof(float) * obj->halfFrameSize * 2);
         memset(obj->winFrameShiftedFreq, 0x00, sizeof(float) * obj->halfFrameSize * 2);
 
-        fft_r2c(obj->fft, obj->winLocalShifted, obj->winLocalShiftedFreq);
-        fft_r2c(obj->fft, obj->winGlobalShifted, obj->winGlobalShiftedFreq);
-        fft_r2c(obj->fft, obj->winFrameShifted, obj->winFrameShiftedFreq);
+        wavelet_dwt(obj->wavelet, obj->winLocalShifted, obj->winLocalShiftedFreq);
+        wavelet_dwt(obj->wavelet, obj->winGlobalShifted, obj->winGlobalShiftedFreq);
+        wavelet_dwt(obj->wavelet, obj->winFrameShifted, obj->winFrameShiftedFreq);
 
         obj->xiTime = (float **) malloc(sizeof(float *) * nChannels);
         obj->xiFreq = (float **) malloc(sizeof(float *) * nChannels);
@@ -980,7 +980,7 @@
 
         unsigned int iChannel;
 
-        fft_destroy(obj->fft);
+        wavelet_destroy(obj->wavelet);
 
         free((void *) obj->winLocal);
         free((void *) obj->winGlobal);
@@ -1098,7 +1098,7 @@
 
                 }
 
-                fft_r2c(obj->fft, obj->xiTime[iChannel], obj->xiFreq[iChannel]);
+                wavelet_dwt(obj->wavelet, obj->xiTime[iChannel], obj->xiFreq[iChannel]);
 
                 for (iBin = 0; iBin < obj->halfFrameSize; iBin++) {
 
@@ -1127,9 +1127,9 @@
 
                 }
 
-                fft_c2r(obj->fft, obj->xiSmoothedLocalFreq[iChannel], obj->xiSmoothedLocalTime[iChannel]);
-                fft_c2r(obj->fft, obj->xiSmoothedGlobalFreq[iChannel], obj->xiSmoothedGlobalTime[iChannel]);
-                fft_c2r(obj->fft, obj->xiSmoothedFrameFreq[iChannel], obj->xiSmoothedFrameTime[iChannel]);
+                wavelet_idwt(obj->wavelet, obj->xiSmoothedLocalFreq[iChannel], obj->xiSmoothedLocalTime[iChannel]);
+                wavelet_idwt(obj->wavelet, obj->xiSmoothedGlobalFreq[iChannel], obj->xiSmoothedGlobalTime[iChannel]);
+                wavelet_idwt(obj->wavelet, obj->xiSmoothedFrameFreq[iChannel], obj->xiSmoothedFrameTime[iChannel]);
 
                 for (iBin = 0; iBin < obj->halfFrameSize; iBin++) {
 

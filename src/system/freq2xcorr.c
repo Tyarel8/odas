@@ -41,7 +41,7 @@
         obj->frame = (float *) malloc(sizeof(float) * halfFrameSize * 2);
         memset(obj->frame,0x00,sizeof(float)* halfFrameSize * 2);
 
-        obj->fft = fft_construct(frameSize);
+        obj->wavelet = wavelet_construct(frameSize);
 
         return obj;
 
@@ -49,7 +49,7 @@
 
     void freq2xcorr_destroy(freq2xcorr_obj * obj) {
 
-        fft_destroy(obj->fft);
+        wavelet_destroy(obj->wavelet);
         free((void *) obj->frame);
 
         free((void *) obj);
@@ -67,7 +67,7 @@
 
             if (pairs->array[iSignal] == 0x01) {
 
-                fft_c2r(obj->fft, 
+                wavelet_idwt(obj->wavelet, 
                         freqs->array[iSignal],
                         obj->frame);
 
