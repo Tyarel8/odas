@@ -2,50 +2,58 @@
 
 wavelet_obj *wavelet_construct(unsigned int signalLength) {
   wavelet_obj *obj;
-  wave_object wave_temp_obj; // Temporary for wave_init
 
   obj = (wavelet_obj *)malloc(sizeof(wavelet_obj));
-  if (obj == NULL) return NULL;
+  if (obj == NULL) {
+    return NULL;
+  }
+
+  // Initialize members to NULL for safer cleanup in case of failure
+  obj->waveletName = NULL;
+  obj->wave_obj = NULL;
+  obj->wt_obj = NULL;
+  obj->internalInputBuffer = NULL;
+  obj->internalOutputBuffer = NULL;
 
   obj->signalLength = signalLength;
-  obj->numLevels = 4;
-  obj->waveletName = "db4";
+  obj->numLevels = 2;
+  obj->waveletName = strdup("db4");
   if (obj->waveletName == NULL) {
-    free(obj);
+    wavelet_destroy(obj); // Use the destructor for cleanup
     return NULL;
   }
 
-  // Initialize a temporary wave_object to pass to wt_init
-  wave_temp_obj = wave_init(obj->waveletName);
-  if (wave_temp_obj == NULL) {
-    free(obj->waveletName);
-    free(obj);
+  // 1. Initialize the wave_object and store it in our struct
+  obj->wave_obj = wave_init(obj->waveletName);
+  if (obj->wave_obj == NULL) {
+    wavelet_destroy(obj);
     return NULL;
   }
 
-  // Initialize the wt_object
-  obj->wt_obj = wt_init(wave_temp_obj, "dwt", obj->signalLength, obj->numLevels);
+  // 2. Initialize the wt_object using our stored wave_object
+  obj->wt_obj =
+    wt_init(obj->wave_obj, "modwt", obj->signalLength, obj->numLevels);
   if (obj->wt_obj == NULL) {
-    wave_free(wave_temp_obj); // Free the temporary wave_object
-    free(obj->waveletName);
-    free(obj);
+    wavelet_destroy(obj);
     return NULL;
   }
 
-  // Set default extension and convolution (as in the example)
-  setDWTExtension(obj->wt_obj, "sym"); // Or "per"
+  setDWTExtension(obj->wt_obj, "per");
   setWTConv(obj->wt_obj, "direct");
 
-  // Get the actual coefficient length from the initialized wt_object
   obj->coeffLength = obj->wt_obj->outlength;
 
-  // Allocate internal buffer for converting float input to double
   obj->internalInputBuffer =
     (double *)malloc(sizeof(double) * obj->signalLength);
   if (obj->internalInputBuffer == NULL) {
-    wt_free(obj->wt_obj); // This also frees the underlying wave_object
-    free(obj->waveletName);
-    free(obj);
+    wavelet_destroy(obj);
+    return NULL;
+  }
+
+  obj->internalOutputBuffer =
+    (double *)malloc(sizeof(double) * obj->signalLength);
+  if (obj->internalOutputBuffer == NULL) {
+    wavelet_destroy(obj);
     return NULL;
   }
 
@@ -58,9 +66,11 @@ void wavelet_destroy(wavelet_obj *obj) {
   }
 
   free(obj->internalInputBuffer);
+  free(obj->internalOutputBuffer);
   free(obj->waveletName);
-  wt_free(obj->wt_obj); // This also handles freeing the underlying wave_object
-  free((void *)obj);
+  wave_free(obj->wave_obj);
+  wt_free(obj->wt_obj);
+  free(obj);
 }
 
 void wavelet_dwt(wavelet_obj *obj, const float *in, float *out) {
@@ -70,9 +80,9 @@ void wavelet_dwt(wavelet_obj *obj, const float *in, float *out) {
     obj->internalInputBuffer[i] = (double)in[i];
   }
 
-  dwt(obj->wt_obj, obj->internalInputBuffer);
+  modwt(obj->wt_obj, obj->internalInputBuffer);
 
-  for (i = 0; i < obj->coeffLength; ++i) {
+  for (i = 0; i < obj->signalLength; ++i) {
     out[i] = (float)obj->wt_obj->output[i];
   }
 }
@@ -80,13 +90,13 @@ void wavelet_dwt(wavelet_obj *obj, const float *in, float *out) {
 void wavelet_idwt(wavelet_obj *obj, const float *in, float *out) {
   unsigned int i;
 
-  for (i = 0; i < obj->coeffLength; ++i) {
+  for (i = 0; i < obj->signalLength; ++i) {
     obj->wt_obj->output[i] = (double)in[i];
   }
 
-  idwt(obj->wt_obj, obj->wt_obj->output);
+  imodwt(obj->wt_obj, obj->internalOutputBuffer);
 
   for (i = 0; i < obj->signalLength; ++i) {
-    out[i] = (float)obj->wt_obj->output[i];
+    out[i] = (float)obj->internalOutputBuffer[i];
   }
 }

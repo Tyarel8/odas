@@ -14,9 +14,11 @@ typedef struct wavelet_obj {
 
   // The primary wavelib object, encapsulating the transform details
   wt_object wt_obj;
+  wave_object wave_obj;
 
   // Internal buffer for float -> double conversion of input signal
   double *internalInputBuffer;
+  double *internalOutputBuffer;
 
 } wavelet_obj;
 

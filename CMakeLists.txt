@@ -16,7 +16,7 @@ pkg_check_modules(PC_LIBCONFIG REQUIRED libconfig)
 pkg_check_modules(PC_PULSEAUDIO REQUIRED libpulse-simple)
 
 # --- MANUAL WAVELIB ADDITION ---
-set(WAVELIB_ROOT_DIR "/home/respeaker/wavelib")
+set(WAVELIB_ROOT_DIR "$ENV{HOME}/wavelib")
 
 include_directories("${WAVELIB_ROOT_DIR}/header")
 
