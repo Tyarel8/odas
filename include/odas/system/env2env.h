@@ -35,7 +35,7 @@
 
     #include <signal/env.h>
     #include <signal/track.h>
-    #include <utils/wavelet.h>
+    #include <utils/fft.h>
     #include <utils/transcendental.h>
 
     typedef struct env2env_mcra_obj {
@@ -125,7 +125,7 @@
         unsigned int winSizeGlobal;
         unsigned int winSizeFrame;       
 
-        wavelet_obj * wavelet;
+        fft_obj * fft;
 
         float * winLocal;
         float * winGlobal;
